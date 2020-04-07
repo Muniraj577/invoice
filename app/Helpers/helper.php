@@ -17,3 +17,15 @@ if (!function_exists('generateProductCode')) {
     }
 
 }
+
+if (!function_exists('generateInvoiceCode')) {
+    function generateInvoiceCode()
+    {
+        $latestInvoiceCode = App\Invoice::latest()->first();
+        if (!$latestInvoiceCode) {
+            return date('Y-m') . '-' . 'INV#0001';
+        }
+        return date('Y-m') . '-' . 'INV#' . sprintf('%04d', $latestInvoiceCode->id + 1);
+    }
+
+}

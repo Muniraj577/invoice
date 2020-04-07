@@ -19,4 +19,6 @@ use Illuminate\Support\Facades\Route;
 //});
 
 Route::get('/', 'ProductController@app');
+Route::get('/findPrice', 'InvoiceController@findPrice');
 Route::resource('/products', 'ProductController');
+Route::resource('/invoices', 'InvoiceController');
