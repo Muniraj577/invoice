@@ -12,7 +12,104 @@ class InvoiceController extends Controller
 {
     public function index()
     {
-        //
+        return view('invoices.index');
+    }
+
+    public function getInvoiceAndInvoiceItems($domain = '', Request $request)
+    {
+        $columns = array(
+            0 => 'id',
+            1 => 'code',
+            2 => 'customer_name',
+            3 => 'qty',
+            4 => 'subtotal',
+            5 => 'discount',
+            6 => 'total',
+            7 => 'status',
+            8 => 'id',
+        );
+
+        $totalData = Invoice::with('invoice_items')->count();
+        $totalFiltered = $totalData;
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+
+        if (empty($request->input('search.value'))) {
+            $invoices = Invoice::offset($start)
+                ->limit($limit)
+                ->orderBy($order, $dir)
+                ->get();
+        } else {
+            $search = $request->input('search.value');
+
+            $invoices = Invoice::with('invoice_items')
+                ->join('invoice_items', 'invoices.id', '=', 'invoice_items.invoice_id')
+                ->select('invoices.*', 'invoice_items.qty', 'invoice_items.amount', 'invoice_items.discount', 'invoice_items.discount_type')
+                ->where('invoices.id', 'LIKE', "%{$search}%")
+                ->orWhere('invoices.code', 'LIKE', "%{$search}%")
+                ->orWhere('invoices.customer_name', 'LIKE', "%{$search}%")
+                ->orWhere('invoice_items.qty', 'LIKE', "%{$search}%")
+                ->orWhere('invoice_items.amount', 'LIKE', "%{$search}%")
+                ->orWhere('invoice_items.discount', 'LIKE', "%{$search}%")
+                ->orWhere('invoices.discount', 'LIKE', "%{$search}%")
+                ->orWhere('invoices.total', 'LIKE', "%{$search}%")
+                ->orWhere('invoices.status', 'LIKE', "%{$search}%")
+                ->offset($start)
+                ->limit($limit)
+                ->orderBy($order, $dir)
+                ->get();
+
+            $totalFiltered = Invoice::with('invoice_items')
+                ->join('invoice_items', 'invoice_items.invoice_id', '=', 'invoices.id')
+                ->select('invoices.*', 'invoice_items.qty', 'invoice_items.amount', 'invoice_items.discount', 'invoice_items.discount_type')
+                ->where('invoices.id', 'LIKE', "%{$search}%")
+                ->orWhere('invoices.code', 'LIKE', "%{$search}%")
+                ->orWhere('invoices.customer_name', 'LIKE', "%{$search}%")
+                ->orWhere('invoice_items.qty', 'LIKE', "%{$search}%")
+                ->orWhere('invoice_items.amount', 'LIKE', "%{$search}%")
+                ->orWhere('invoice_items.discount', 'LIKE', "%{$search}%")
+                ->orWhere('invoices.discount', 'LIKE', "%{$search}%")
+                ->orWhere('invoices.total', 'LIKE', "%{$search}%")
+                ->orWhere('invoices.status', 'LIKE', "%{$search}%")
+                ->count();
+        }
+
+        $data = array();
+
+        if (!empty($invoices)) {
+            foreach ($invoices as $invoice) {
+                $invoice_item_qty = 0;
+                $invoice_item_amount = 0;
+                $invoice_item_discount = 0;
+                $subtotal = $invoice->subtotal;
+                $total = $invoice->total;
+                $totalDiscount = $subtotal - $total;
+                foreach ($invoice->invoice_items as $invoice_item) {
+                    $invoice_item_qty += $invoice_item->qty;
+                    $invoice_item_amount += $invoice_item->amount;
+                    $invoice_item_discount += $invoice_item->discount;
+                }
+                $nestedData['id'] = $invoice->id;
+                $nestedData['code'] = $invoice->code;
+                $nestedData['customer_name'] = $invoice->customer_name;
+                $nestedData['qty'] = $invoice_item_qty;
+                $nestedData['subtotal'] = $invoice->subtotal;
+                $nestedData['discount'] = "Rs. " . $totalDiscount;
+                $nestedData['total'] = $invoice->total;
+                $nestedData['status'] = $invoice->status;
+                $data[] = $nestedData;
+            }
+        }
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $data
+        );
+        echo json_encode($json_data);
     }
     public function findPrice(Request $request)
     {
