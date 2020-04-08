@@ -5,6 +5,7 @@
 <div class="card">
     <div class="card-body">
         <a href="{{route('invoices.edit', $invoice->id)}}" class="btn btn-primary">Edit Invoice</a>
+        <a href="{{route('invoices.payment', $invoice->id)}}" class="btn btn-primary">Payment</a>
     </div>
 </div>
 <div class="card mt-3">
@@ -117,7 +118,7 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
     $('.close-button').click(function () {
-        for (let i = 2; i <= 7; i++) {
+        for (let i = 3; i <= 10; i++) {
             var column = invoiceList.column(i);
             column.visible(true);
         }

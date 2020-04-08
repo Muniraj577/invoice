@@ -15,4 +15,10 @@ class Invoice extends Model
     {
         return $this->hasMany('App\InvoiceItem', 'invoice_id', 'id');
     }
+
+    public function invoice_payments()
+    {
+        return $this->hasMany('App\InvoicePayment', 'invoice_id', 'id');
+    }
+
 }

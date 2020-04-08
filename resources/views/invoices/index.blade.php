@@ -59,7 +59,10 @@
                             <th>Subtotal</th>
                             <th>Discount</th>
                             <th>Total</th>
+                            <th>Paid Amount</th>
+                            <th>Due Amount</th>
                             <th>Status</th>
+                            <th>Action</th>
                         </tr>
                         </thead>
                     </table>
@@ -96,6 +99,9 @@
                     {'className': "column-5", targets: 5},
                     {'className': "column-6", targets: 6},
                     {'className': "column-7", targets: 7},
+                    {'className': "column-8", targets: 8},
+                    {'className': "column-9", targets: 9},
+                    {'className': "column-10", targets: 10},
                 ],
                 "columns": [
                     {"data": "id"},
@@ -105,7 +111,10 @@
                     {"data": "subtotal"},
                     {"data": "discount"},
                     {"data": "total"},
+                    {"data": "paid_amount"},
+                    {"data": "due_amount"},
                     {"data": "status"},
+                    {"data": "action"},
                 ]
             });
 
@@ -115,7 +124,7 @@
                 type: "GET",
                 url: invoiceUrl,
                 success: function (data) {
-                    for (let i = 2; i <= 7; i++) {
+                    for (let i = 3; i <= 10; i++) {
                         var column = invoiceList.column(i);
                         column.visible(false);
                     }
@@ -123,6 +132,14 @@
                     $('.invoice-detail-section').removeClass('hide');
                     $('.invoice-detail-content').html(data);
                 }
+            });
+        }
+        function alertMessage() {
+            $.alert({
+                icon: 'fa fa-smile-o',
+                title: 'Paid',
+                content: 'This payment is already cleared.<br> Thank You',
+                theme: 'modern',
             });
         }
     </script>

@@ -25,8 +25,10 @@ class InvoiceController extends Controller
             4 => 'subtotal',
             5 => 'discount',
             6 => 'total',
-            7 => 'status',
-            8 => 'id',
+            7 => 'paid_amount',
+            8 => 'due_amount',
+            9 => 'status',
+            10 => 'id',
         );
 
         $totalData = Invoice::with('invoice_items')->count();
@@ -93,6 +95,7 @@ class InvoiceController extends Controller
                     $invoice_item_discount += $invoice_item->discount;
                 }
                 $show = route('invoices.show', $invoice->id);
+                $payment = route('invoices.payment', $invoice->id);
                 $nestedData['id'] = "<span data-url = '{$show}' class='detail-tab' onclick='updatePage(this)'>{$invoice->id}</span>";
                 $nestedData['code'] = "<span data-url = '{$show}' class='detail-tab' onclick='updatePage(this)'>{$invoice->code}</span>";
                 $nestedData['customer_name'] = "<span data-url = '{$show}' class='detail-tab' onclick='updatePage(this)'>{$invoice->customer_name}</span>";
@@ -101,6 +104,28 @@ class InvoiceController extends Controller
                 $nestedData['discount'] = "Rs. " . $totalDiscount;
                 $nestedData['total'] = $invoice->total;
                 $nestedData['status'] = $invoice->status;
+
+                $due_amount = 0;
+                $paid_amount = 0;
+                foreach ($invoice->invoice_payments as $invoice_payment) {
+                    $paid_amount += $invoice_payment->paid_amount;
+                    $due_amount = $total - $paid_amount;
+                }
+                if ($due_amount || abs($due_amount) === 0.00) {
+                    $nestedData['due_amount'] = $due_amount;
+                    $nestedData['paid_amount'] = $paid_amount;
+                } else {
+                    $nestedData['due_amount'] = $invoice->total;
+                    $nestedData['paid_amount'] = 0;
+                }
+                if ($due_amount) {
+                    $nestedData['action'] = "<a href='{$payment}'><button type='button' class='btn btn-primary'>Payment</button></a>";
+                } elseif (abs($due_amount) === 0.00) {
+                    $nestedData['action'] = "<button type='button' onclick='alertMessage()' class='btn btn-primary'>Payment</button>";
+                } elseif (empty($due_amount)) {
+                    $nestedData['action'] = "<a href='{$payment}'><button type='button' class='btn btn-primary'>Payment</button></a>";
+                }
+
                 $data[] = $nestedData;
             }
         }
