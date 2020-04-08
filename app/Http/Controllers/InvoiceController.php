@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Invoice;
 use App\InvoiceItem;
 use App\Product;
+use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -137,11 +138,13 @@ class InvoiceController extends Controller
         );
         echo json_encode($json_data);
     }
+
     public function findPrice(Request $request)
     {
         $products = Product::select('price', 'code')->where('id', $request->id)->first();
         return response()->json($products);
     }
+
     public function create()
     {
         $products = Product::all();
@@ -228,7 +231,7 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::where('id', $id)->with('invoice_items')->first();
         $products = Product::all();
-        return view('invoices.edit', compact('invoice','products', $invoice));
+        return view('invoices.edit', compact('invoice', 'products', $invoice));
     }
 
     public function update(Request $request, $id)
@@ -286,6 +289,13 @@ class InvoiceController extends Controller
             }
         }
         return redirect()->route('invoices.index')->with('success', 'Invoice updated successfully.');
+    }
+
+    public function invoicePdfDownload($id)
+    {
+        $invoice = Invoice::where('id', $id)->with('invoice_items')->first();
+        $pdf = PDF::loadView('invoices.invoicepdf', compact('invoice'));
+        return $pdf->stream('invoice.pdf');
     }
 
     public function destroy(Invoice $invoice)

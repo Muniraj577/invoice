@@ -24,6 +24,8 @@ Route::post('/get-invoices', 'InvoiceController@getInvoiceAndInvoiceItems')->nam
 Route::get('/invoice/{id}/payment', 'PaymentController@payment')->name('invoices.payment');
 Route::post('/invoice-payment/{id}', 'PaymentController@savePayment')->name('invoicePayment.store');
 Route::post('/edit-invoice-payment/{id}', 'PaymentController@updatePayment')->name('invoicePayment.update');
+Route::get('/download-invoice-pdf/{id}', 'InvoiceController@invoicePdfDownload')->name('invoice.downloadPDF');
+Route::get('/payment-pdf-download/{id}', 'PaymentController@paymentPDf')->name('payment-pdf-download');
 Route::resource('/products', 'ProductController');
 Route::resource('/invoices', 'InvoiceController');
 Route::resource('/payments', 'PaymentController');

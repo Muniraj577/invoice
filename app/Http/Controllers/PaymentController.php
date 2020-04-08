@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Invoice;
 use App\InvoicePayment;
+use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -11,7 +12,8 @@ class PaymentController extends Controller
 {
     public function index()
     {
-
+        $invoice_payments = InvoicePayment::all();
+        return view('payments.index', compact('invoice_payments'));
     }
 
     public function payment(Request $request, $id)
@@ -138,7 +140,17 @@ class PaymentController extends Controller
 
     public function show($id)
     {
-        //
+        $invoice = Invoice::find($id);
+        $invoice_payment = InvoicePayment::where('id', $id)->first();
+        return view('payments.show', compact('invoice_payment', 'invoice', $invoice_payment, $invoice));
+    }
+
+    public function paymentPDf($id)
+    {
+        $invoice = Invoice::find($id);
+        $invoice_payment = InvoicePayment::where('id', $id)->first();
+        $pdf = PDF::loadView('payments.paymentpdf', compact('invoice', 'invoice_payment'));
+        return $pdf->stream('payment.pdf');
     }
 
     public function edit($id)

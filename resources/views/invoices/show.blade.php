@@ -6,11 +6,11 @@
     <div class="card-body">
         <a href="{{route('invoices.edit', $invoice->id)}}" class="btn btn-primary">Edit Invoice</a>
         <a href="{{route('invoices.payment', $invoice->id)}}" class="btn btn-primary">Payment</a>
+        <a href="{{route('invoice.downloadPDF', $invoice->id)}}" class="btn btn-primary">PDF</a>
     </div>
 </div>
 <div class="card mt-3">
     <div class="card-header">
-        Create Invoice
         <div class="col-md-2 float-right">
             <button type="button" class="close close-button" aria-label="Close">
                 <span aria-hidden="true" class=" ">&times;</span>
@@ -18,98 +18,83 @@
         </div>
     </div>
     <div class="card-body">
-        <form action="{{route('invoices.store')}}" method="POST">
-            @csrf
-            <div class="container">
-                <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            <label for="code">Invoice Code:</label>
-                            <input type="text" name="code" id="code" value="{{$invoice->code}}"
-                                   class="form-control code">
-                        </div>
-                        <div class="form-group">
-                            <label for="name">Customer Name:</label>
-                            <input type="text" value="{{$invoice->customer_name}}" name="customer_name"
-                                   id="customer_name"
-                                   class="form-control customer_name">
-                        </div>
-                        <div class="form-group">
-                            <label for="address">Address:</label>
-                            <input type="text" name="address" id="address" value="{{$invoice->address}}"
-                                   class="form-control address">
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="form-group">
-                            <label for="phone">Contact No:</label>
-                            <input type="text" name="phone" id="phone" value="{{$invoice->contact_no}}"
-                                   class="form-control phone">
-                        </div>
-                        <div class="form-group">
-                            <label for="date">Invoice Date</label>
-                            <input type="text" id="invoice_date" name="date" value="{{$invoice->date}}
-                                    " class="form-control datepicker">
-                        </div>
-                        <div class="form-group">
-                            <label for="due_date">Due Date</label>
-                            <input type="text" id="invoice_due_date" value="{{$invoice->due_date}}"
-                                   name="due_date"
-                                   class="form-control">
-                        </div>
-                    </div>
-                </div>
-                <hr class="mt-3">
-                <div class="row mt-5">
-                    <div class="col-md-12 col-sm-12 col-lg-12 col-xs-12">
-                        <table class="table table-bordered" id="main_table">
-                            <thead>
-                            <tr>
-                                <th scope="col">PRODUCT NAME</th>
-                                <th scope="col">QTY</th>
-                                <th scope="col">PRICE</th>
-                                <th scope="col">AMOUNT</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($invoice->invoice_items as $invoice_item)
-                                <tr>
-                                    <td>{{$invoice_item->product->name}}</td>
-                                    <td>{{$invoice_item->qty}}</td>
-                                    <td>{{$invoice_item->price}}</td>
-                                    <td>{{$invoice_item->amount}}</td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group float-right">
-                                    <label for="subtotal"><b>SubTotal</b></label>
-                                    <div>{{ $invoice->subtotal }}</div>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="row p-5">
+                                <div class="col-md-6">
+                                    Company Logo
+                                </div>
+
+                                <div class="col-md-6 text-right">
+                                    <p class="font-weight-bold mb-1">{{$invoice->code}}</p>
+                                    <p class="text-muted">Due to: {{date('j-F-Y', strtotime($invoice->due_date))}}</p>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group float-right">
-                                    <label for="discount"><b>Discount</b></label>
-                                    <div>{{$invoice->discount}}</div>
+
+                            <hr class="my-5">
+
+                            <div class="row pb-5 p-5">
+                                <div class="col-md-6">
+                                    <p class="font-weight-bold mb-4">Customer Information</p>
+                                    <p class="mb-1">{{$invoice->customer_name}}</p>
+                                    {{--<p>Acme Inc</p>--}}
+                                    <p class="mb-1">{{$invoice->address}}</p>
+                                    <p class="mb-1">{{$invoice->contact_no}}</p>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group float-right">
-                                    <label for="total"><b>Total</b></label>
-                                    <div>{{$invoice->total}}</div>
+
+                            <div class="row p-5">
+                                <div class="col-md-12">
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th class="border-0 text-uppercase small font-weight-bold">Product Name</th>
+                                            <th class="border-0 text-uppercase small font-weight-bold">Qty</th>
+                                            <th class="border-0 text-uppercase small font-weight-bold">Price</th>
+                                            <th class="border-0 text-uppercase small font-weight-bold">Amount</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($invoice->invoice_items as $invoice_item)
+                                            <tr>
+                                                <td>{{$invoice_item->product->name}}</td>
+                                                <td>{{$invoice_item->qty}}</td>
+                                                <td>{{$invoice_item->price}}</td>
+                                                <td>{{$invoice_item->amount}}</td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-row-reverse bg-dark text-white p-2">
+                                <div class="py-2 px-3 text-right">
+                                    <div class="mb-2">Grand Total</div>
+                                    <div class="h5 font-weight-light">Rs. {{$invoice->total}}</div>
+                                </div>
+
+                                <div class="py-2 px-3 text-right">
+                                    <div class="mb-2">Discount</div>
+                                    @if($invoice->discount_type == "Amount")
+                                        <div class="h5 font-weight-light">Rs. {{$invoice->discount}}</div>
+                                        @else
+                                        <div class="h5 font-weight-light">{{$invoice->discount}}%</div>
+                                    @endif
+                                </div>
+
+                                <div class="py-2 px-3 text-right">
+                                    <div class="mb-2">SubTotal</div>
+                                    <div class="h5 font-weight-light">Rs. {{$invoice->subtotal}}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
