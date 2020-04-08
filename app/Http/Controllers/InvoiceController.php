@@ -119,14 +119,17 @@ class InvoiceController extends Controller
                     $nestedData['due_amount'] = $invoice->total;
                     $nestedData['paid_amount'] = 0;
                 }
-                if ($due_amount) {
-                    $nestedData['action'] = "<a href='{$payment}'><button type='button' class='btn btn-primary'>Payment</button></a>";
-                } elseif (abs($due_amount) === 0.00) {
-                    $nestedData['action'] = "<button type='button' onclick='alertMessage()' class='btn btn-primary'>Payment</button>";
-                } elseif (empty($due_amount)) {
-                    $nestedData['action'] = "<a href='{$payment}'><button type='button' class='btn btn-primary'>Payment</button></a>";
+                if ($nestedData['status'] == 'Canceled') {
+                    $nestedData['action'] = "<button type='button' onclick='deleteInvoice({$invoice->id})' class='btn btn-danger'>Delete</button>";
+                } else {
+                    if ($due_amount) {
+                        $nestedData['action'] = "<a href='{$payment}'><button type='button' class='btn btn-primary'>Payment</button></a>";
+                    } elseif (abs($due_amount) === 0.00) {
+                        $nestedData['action'] = "<button type='button' onclick='alertMessage()' class='btn btn-primary'>Payment</button>";
+                    } elseif (empty($due_amount)) {
+                        $nestedData['action'] = "<a href='{$payment}'><button type='button' class='btn btn-primary'>Payment</button></a>";
+                    }
                 }
-
                 $data[] = $nestedData;
             }
         }
@@ -227,6 +230,13 @@ class InvoiceController extends Controller
         return view('invoices.show', compact('invoice', 'products', $invoice));
     }
 
+    public function invoicePage($id)
+    {
+        $invoice = Invoice::where('id', $id)->with('invoice_items')->first();
+        $products = Product::all();
+        return view('invoices.viewinvoice', compact('invoice', 'products', $invoice));
+    }
+
     public function edit($id, Request $request)
     {
         $invoice = Invoice::where('id', $id)->with('invoice_items')->first();
@@ -298,8 +308,22 @@ class InvoiceController extends Controller
         return $pdf->stream('invoice.pdf');
     }
 
+    public function cancelInvoice(Request $request)
+    {
+        Invoice::where('id', $request->invoice_id)->update(['status' => 'Canceled']);
+        return response()->json(['success' => 'Invoice is canceled']);
+    }
+
     public function destroy(Invoice $invoice)
     {
         //
+    }
+
+    public function deleteInvoice($id)
+    {
+        $invoice = Invoice::where('id', $id)->with('invoice_items')->first();
+        $invoice->invoice_items()->delete();
+        $invoice->delete();
+        return response()->json(['success', 'Invoice deleted successfully']);
     }
 }

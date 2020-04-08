@@ -4,8 +4,27 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <div class="card">
     <div class="card-body">
-        <a href="{{route('invoices.edit', $invoice->id)}}" class="btn btn-primary">Edit Invoice</a>
-        <a href="{{route('invoices.payment', $invoice->id)}}" class="btn btn-primary">Payment</a>
+        @if($invoice->status !== 'Paid' && $invoice->status !== "Canceled")
+            <a href="{{route('invoices.edit', $invoice->id)}}" class="btn btn-primary">Edit Invoice</a>
+        @endif
+        <a href="{{route('invoicePage', $invoice->id)}}" target="_blank" class="btn btn-primary">View Invoice</a>
+        @if($invoice->status!='Canceled' && $invoice->status!='Paid')
+            <a class="btn btn-primary" target="_blank" href="{{route('invoices.payment', $invoice->id)}}">
+                Payment
+            </a>
+            @if($invoice->status !='Partially Paid')
+                <a class="btn btn-primary invoice-cancel" id="invoice-cancel">Cancel Invoice</a>
+                {{--<button type="button" class="btn btn-danger btn-delete" aria-label="Close">--}}
+                    {{--Delete--}}
+                {{--</button>--}}
+            @endif
+        @endif
+        @if($invoice->status == "Canceled" || $invoice->status == "Unpaid")
+            <button type="button" class="btn btn-danger btn-delete" aria-label="Close">
+                Delete
+            </button>
+        @endif
+        {{--<a href="{{route('invoices.payment', $invoice->id)}}" class="btn btn-primary">Payment</a>--}}
         <a href="{{route('invoice.downloadPDF', $invoice->id)}}" class="btn btn-primary">PDF</a>
     </div>
 </div>
@@ -80,7 +99,7 @@
                                     <div class="mb-2">Discount</div>
                                     @if($invoice->discount_type == "Amount")
                                         <div class="h5 font-weight-light">Rs. {{$invoice->discount}}</div>
-                                        @else
+                                    @else
                                         <div class="h5 font-weight-light">{{$invoice->discount}}%</div>
                                     @endif
                                 </div>
@@ -102,6 +121,65 @@
 {{--@section('script')--}}
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
+    $('.invoice-cancel').click(function () {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            }
+        });
+        $.ajax({
+            type: "post",
+            url: "{{ route('cancelInvoice') }}",
+            data: {'invoice_id': $('.invoice-id').val()},
+            success: function (data) {
+                let invoiceUrl = $(obj).data('url');
+                $.ajax({
+                    type: "GET",
+                    url: invoiceUrl,
+                    success: function (data) {
+                        $('.invoice-detail-content').html(data);
+                        // location.reload()
+                    }
+                });
+                alert('Invoice is canceled');
+            }
+        });
+    });
+
+    $('.btn-delete').click(function (event) {
+        event.preventDefault();
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            }
+        });
+        $.ajax({
+            type: "post",
+            url: "{{ route('deleteInvoice', $invoice->id) }}",
+            data: {'invoice_id': $('.invoice-id').val()},
+            success: function (data) {
+                alert('invoice deleted');
+                location.reload()
+            }
+        });
+    });
+
+    function deleteInvoice() {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            }
+        });
+        $.ajax({
+            type: "post",
+            url: "{{ route('deleteInvoice', $invoice->id) }}",
+            // data: {'invoice_id': $('.invoice-id').val()},
+            success: function (data) {
+                alert('invoice deleted');
+                location.reload()
+            }
+        });
+    }
     $('.close-button').click(function () {
         for (let i = 3; i <= 10; i++) {
             var column = invoiceList.column(i);
