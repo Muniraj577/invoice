@@ -1,0 +1,31 @@
+.detail-tab {
+    text-align: center;
+    display: inherit;
+    border-bottom: 0px solid;
+}
+.detail-tab li{
+    float: none;
+    display: inline-block;
+}
+.detail-tab li a{
+    font-size: 14px;
+    text-transform: uppercase;
+}
+.detail-tab .nav-link{
+    border: 0px solid transparent;
+    border-bottom: 2px solid transparent;
+}
+.detail-tab .nav-link.active {
+    color: #009688!important;
+    background-color: transparent;
+    border-top: 0px solid;
+    border-left: 0px solid;
+    border-right: 0px solid;
+    border-bottom: 2px solid #009688;
+}
+.detail-tab .nav-link:hover {
+    border-top: 0px solid;
+    border-left: 0px solid;
+    border-right: 0px solid;
+    border-bottom: 2px solid #009688;
+}

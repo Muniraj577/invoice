@@ -13,7 +13,7 @@
                 <a class="nav-link @yield('products')" href="{{route('products.index')}}">Products</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link @yield('invoice')" href="#">Invoices</a>
+                <a class="nav-link @yield('invoice')" href="{{route('invoices.index')}}">Invoices</a>
             </li>
         </ul>
         <form class="form-inline my-2 my-lg-0">
