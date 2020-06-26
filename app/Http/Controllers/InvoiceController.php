@@ -98,8 +98,8 @@ class InvoiceController extends Controller
                 $show = route('invoices.show', $invoice->id);
                 $payment = route('invoices.payment', $invoice->id);
                 $nestedData['id'] = "<span data-url = '{$show}' class='detail-tab' onclick='updatePage(this)'>{$invoice->id}</span>";
-                $nestedData['code'] = "<span data-url = '{$show}' class='detail-tab' onclick='updatePage(this)'>{$invoice->code}</span>";
-                $nestedData['customer_name'] = "<span data-url = '{$show}' class='detail-tab' onclick='updatePage(this)'>{$invoice->customer_name}</span>";
+                $nestedData['code'] = "<span data-url = '{$show}' class='detail-tab' onclick='updatePage(this)' style='color:blue;'>{$invoice->code}</span>";
+                $nestedData['customer_name'] = "<span data-url = '{$show}' class='detail-tab' onclick='updatePage(this)' style='color:blue;'>{$invoice->customer_name}</span>";
                 $nestedData['qty'] = $invoice_item_qty;
                 $nestedData['subtotal'] = $invoice->subtotal;
                 $nestedData['discount'] = "Rs. " . $totalDiscount;
