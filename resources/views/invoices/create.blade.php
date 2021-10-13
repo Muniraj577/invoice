@@ -24,6 +24,9 @@
                                 <label for="name">Customer Name:</label>
                                 <input type="text" name="customer_name" id="customer_name"
                                        class="form-control customer_name">
+									   @error('customer_name')
+									   {{$message}}
+									   @enderror
                             </div>
                             <div class="form-group">
                                 <label for="address">Address:</label>
@@ -79,6 +82,9 @@
                                                 <option value="{{$product->id}}">{{$product->name}}</option>
                                             @endforeach
                                         </select>
+										@error('product_id[]')
+									   {{$message}}
+									   @enderror
                                     </td>
                                     {{--<td><input type="text" name="code[]" class="form-control code" id="code"></td>--}}
                                     <td><input type="text" name="qty[]" class="form-control qty" id="qty"
